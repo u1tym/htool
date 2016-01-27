@@ -1,5 +1,5 @@
 all :
-	scalac go.scala
+	scalac go.scala Board.scala
 
 clean :
 	rm -r *.class
