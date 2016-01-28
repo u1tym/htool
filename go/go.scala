@@ -5,7 +5,7 @@ object go {
 		// 盤の生成
 		var board = new Board
 
-		var cont : Boolean = true
+		var cont = true
 		while( cont ) {
 
 			print( "> " )
