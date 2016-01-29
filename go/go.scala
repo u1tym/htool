@@ -17,7 +17,11 @@ object go {
 
 				case "quit" => cont = false
 
-				case "set"  => board.set( 1, 2, 1 )
+				case "set"  => board.set( strs( 1 ).toInt,
+							  strs( 2 ).toInt,
+							  strs( 3 ) )
+					       board.look
+
 				case _      =>
 			}
 
