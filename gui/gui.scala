@@ -10,7 +10,7 @@ object Main extends SimpleSwingApplication{
 						text = "sample"
 						reactions += {
 							case e : ButtonClicked => {
-								fStock.makeCard( new Date, "abcde" )
+								fStock.makeCard( "abcde" )
 							}
 						}
 					}
@@ -29,6 +29,7 @@ object Main extends SimpleSwingApplication{
 	var fStock = new fusen( w, h, cardW, cardH )
 
 	fStock.recoveryCard
+	fStock.setTimer
 
 	def top = new MainFrame {
 

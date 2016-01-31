@@ -3,6 +3,8 @@ package utl.plan
 import java.util.Date
 import java.io.PrintWriter
 import java.io._
+import java.util.Timer
+import java.util.TimerTask
 import scala.io.Source
 
 class fusen( displayW : Int, displayH : Int, cardW : Int, cardH : Int ) {
@@ -11,14 +13,22 @@ class fusen( displayW : Int, displayH : Int, cardW : Int, cardH : Int ) {
 	var number    : Int = 0
 	var cardCount : Int = 0
 
-	def makeCard( date : Date, message : String ) = {
+	def makeCard( message : String ) = {
 
+		// ID採番
 		val id       = numbering
 
+		// 更新関数
 		val func     = write _
 		val upd      = func( id, _ : fusenCard )
 
+		// 位置
 		val ( x, y ) = position( cardCount )
+
+		// 期限（現在日から7日後）
+		val date = new Date( new Date().getTime + 7 * 24 * 60 * 60 * 1000 )
+
+		// カード生成
 		val card     = new fusenCard( x, y, cardW, cardH, date, message, upd )
 
 		cardCount    += 1
@@ -43,11 +53,21 @@ class fusen( displayW : Int, displayH : Int, cardW : Int, cardH : Int ) {
 		}
 	}
 
+	def setTimer = {
+
+		var timer = new Timer
+		timer.schedule( new doTimer( this ), 0, 1000 )
+
+	}
+
+	def doEvent = {
+
+		println( "タイマー発動" )
+
+	}
+
 	def numbering = {
 		
-//		number += 1
-//		number
-
 		var number = 1
 		while( data.getOrElse( number, "empty" ) != "empty" ) {
 			println( "no=" + number + "はすでに存在" )
@@ -127,6 +147,16 @@ class fusen( displayW : Int, displayH : Int, cardW : Int, cardH : Int ) {
 		file.close()
 
 		return ()
+	}
+
+}
+
+class doTimer( cls : fusen ) extends TimerTask {
+
+	def run = {
+
+		cls.doEvent
+
 	}
 
 }
