@@ -1,4 +1,4 @@
-package com.example
+package utl.plan
 
 import scala.swing._
 import scala.swing.Dialog.Result
