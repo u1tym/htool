@@ -28,6 +28,8 @@ object Main extends SimpleSwingApplication{
 
 	var fStock = new fusen( w, h, cardW, cardH )
 
+	fStock.recoveryCard
+
 	def top = new MainFrame {
 
 		title    = "BOOOOM"

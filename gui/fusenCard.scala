@@ -65,10 +65,15 @@ class fusenCard( px : Int, py : Int, w : Int, h : Int, var date : Date, var mess
 
 		text.setText( "deleted" )
 		println( "削除しました。" )
+
+		upd( this )
 	}
 
 	def changeText = {
 
+		message = text.getText()
+
+		println( "upd is [" + upd + "]" )
 		upd( this )
 		println( "textが編集されました。" )
 
