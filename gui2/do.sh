@@ -1,4 +1,4 @@
 #!/bin/sh
 
-scala -classpath . utl.plan.Main
+scala -classpath . smpl
 
