@@ -1,5 +1,10 @@
-import javafx.application.{ Application => Application }
+import javafx.application.Application
 import javafx.stage.Stage
+import javafx.scene.Scene
+import javafx.scene.layout.BorderPane
+import javafx.scene.control.Label
+import javafx.scene.control.TextField
+import javafx.scene.control.Button
 
 object smpl {
 
@@ -13,9 +18,22 @@ object smpl {
 
 class smpl extends Application {
 
-	override def start( sts : Stage ) : Unit = {
+	override def start( stage : Stage ) : Unit = {
 
-		sts.show()
+		var label  = new Label( "sample" )
+		var button = new Button( "Click" )
+		var text   = new TextField()
+
+		var pane = new BorderPane()
+		pane.setTop( label )
+		pane.setCenter( text )
+		pane.setBottom( button )
+
+		var scene = new Scene( pane, 320, 240 )
+
+		stage.setScene( scene )
+
+		stage.show()
 
 	}
 
