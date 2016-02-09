@@ -15,7 +15,7 @@ class fusenCard( px : Int, py : Int, w : Int, h : Int, var date : Date, var mess
 	setLayout( null )
 
 	setUndecorated( true )
-	setOpacity( 0.7f )
+	//setOpacity( 0.7f )
 	setVisible( true )
 
 	setBounds( px, py, w, h )
