@@ -1,16 +1,67 @@
+import java.lang.Math._
 
 /**
  * 座標（緯度経度）
  */
-class Coordinate( str : String ) {
+class Coordinate {
 	var latitude  : DMST = _		// 緯度
 	var longitude : DMST = _		// 経度
 
-	// 緯度抽出
-	val tmp = "^[0-9].([0-9].([0-9].([0-9]..){0,1}){0,1}){0,1}(N|S)".r.findFirstIn( str ).getOrElse( "9999999999X" )
+	latitude  = new DMST( "00N" )
+	longitude = new DMST( "000E" )
 
-	latitude  = new DMST( tmp )
-	longitude = new DMST( str.substring( tmp.length, str.length ) )
+	def this( str : String ) {
+
+		this()
+
+		// 緯度抽出
+		val tmp = "^[0-9].([0-9].([0-9].([0-9]..){0,1}){0,1}){0,1}(N|S)".r.findFirstIn( str ).getOrElse( "9999999999X" )
+
+		latitude  = new DMST( tmp )
+		longitude = new DMST( str.substring( tmp.length, str.length ) )
+
+	}
+
+	def this( lat : DMST, lon : DMST ) {
+
+		this()
+
+		require( lat.isLatitude )
+		require( lon.isLongitude )
+
+		latitude  = lat
+		longitude = lon
+
+	}
+
+	def *( d : Direction ) : Coordinate = {
+
+		val rx : Double = 6378137.0		// 赤道半径(m)
+		val e2 : Double = 0.00669437999	// 離心率(e^2)
+
+		var wt  = sqrt( 1.0 - e2 * pow( sin( latitude.toInt / 1000 * PI / 180.0 ), 2.0 ) )
+		var mt  = rx * ( 1.0 - e2 ) / pow( wt, 3.0 )
+		var dit = d.distance.meter * cos( d.bearing.radian ) / mt
+
+		var i   = latitude.toInt / 1000 * PI / 180.0 + dit / 2.0
+
+		var w   = sqrt( 1.0 - e2 * pow( sin( i ), 2.0 ) )
+		var m   = rx * ( 1.0 - e2 ) / pow( w, 3.0 )
+		var n   = rx / w
+
+		var di  = d.distance.meter * cos( d.bearing.radian ) / m
+		var dk  = d.distance.meter * sin( d.bearing.radian ) / ( n * cos( i ) )
+
+		var new_latitude_int  = ( latitude.toInt  + di * 180.0 / PI * 1000.0 ).toInt
+		var new_longitude_int = ( longitude.toInt + dk * 180.0 / PI * 1000.0 ).toInt
+
+		var new_latitude  = new DMST( new_latitude_int )
+		var new_longitude = new DMST( new_longitude_int )
+
+		var new_coordinate = new Coordinate( new_latitude, new_longitude )
+
+		new_coordinate
+	}
 
 	def print = {
 		println( "緯度" )
@@ -134,6 +185,10 @@ class Distance( v : Double ) {
 }
 
 class Direction( b : Bearing, d : Distance ) {
+
+	var bearing  : Bearing  = b
+	var distance : Distance = d
+
 }
 
 class DMST {
@@ -143,6 +198,22 @@ class DMST {
 	var second : Int = _
 	var milliS : Int = _
 	var sign   : Int = 1
+
+	def this( v : Int ) {
+
+		this()
+
+		var base = if ( v >= 0 ) v else ( v * -1 )
+
+		var d  = base / toInt( 1, 0, 0, 0 )
+		var m  = ( base - toInt( d, 0, 0, 0 ) ) / toInt( 0, 1, 0, 0 )
+		var s  = ( base - toInt( d, m, 0, 0 ) ) / toInt( 0, 0, 1, 0 )
+		var t  = ( base - toInt( d, m, s, 0 ) ) / toInt( 0, 0, 0, 1 )
+		var sg = v / base
+
+		create( d, m, s, t, sg )
+
+	}
 
 	def this( d : Int, m : Int, s : Int, t : Int, n : String ) {
 
@@ -209,6 +280,13 @@ class DMST {
 
 	}
 
+	def isLatitude : Boolean = {
+		if ( toInt( degree, minute, second, milliS ) <= toInt( 90, 0, 0, 0 ) ) true else false
+	}
+
+	def isLongitude : Boolean = {
+		if ( toInt( degree, minute, second, milliS ) <= toInt( 180, 0, 0, 0 ) ) true else false
+	}
 
 	/**
 	 * toInt
