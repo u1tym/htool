@@ -3,11 +3,16 @@ object Main {
 
 	def main( args : Array[ String ] ) : Unit = {
 
-		println( "aaa" )
+		var lat = new DMST( "895959N" )
+		lat.print
 
-		var lat = new Coor( "992030444A" )
+		var c = new Coordinate( "754030555N1355040333E" )
+		c.print
 
-		lat.debugPrint
+		var d = new Distance( 10 )
+		d *= 5
+
+		d.print
 
 	}
 
