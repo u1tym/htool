@@ -154,6 +154,9 @@ class DMST {
 
 		create( d, m, s, t, if ( n == "N" || n == "E" ) 1 else -1 )
 
+		// 値チェック(上限)
+		require( toInt( d, m, s, t ) <= ( n match { case "N" | "S" => toInt(  90, 0, 0, 0 )
+												    case "E" | "W" => toInt( 180, 0, 0, 0 ) } ) )
 	}
 
 	def this( str : String ) {
@@ -174,6 +177,10 @@ class DMST {
 						   case _                     => false } )
 
 		create( d, m, s, t, if ( n == "N" || n == "E" ) 1 else -1 )
+
+		// 値チェック(上限)
+		require( toInt( d, m, s, t ) <= ( n match { case "N" | "S" => toInt(  90, 0, 0, 0 )
+												    case "E" | "W" => toInt( 180, 0, 0, 0 ) } ) )
 
 	}
 
@@ -199,9 +206,6 @@ class DMST {
 
 		// 値チェック(ミリ秒)
 		require( milliS >= 0 && milliS <= 999 )
-
-		// 値チェック(上限)
-		require( toInt( degree, minute, second, milliS ) <= toInt( 180, 0, 0, 0 ) )
 
 	}
 
