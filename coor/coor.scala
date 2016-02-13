@@ -184,10 +184,24 @@ class Distance( v : Double ) {
 	}
 }
 
-class Direction( b : Bearing, d : Distance ) {
+class Direction {
 
-	var bearing  : Bearing  = b
-	var distance : Distance = d
+	var bearing  : Bearing  = new Bearing( 0 )
+	var distance : Distance = new Distance( 0 )
+
+	def this( b : Bearing, d : Distance ) {
+		this()
+
+		bearing  = b
+		distance = d
+	}
+
+	def this( angl : Double, dist : Double ) = {
+		this()
+
+		bearing  = new Bearing( angl )
+		distance = new Distance( dist )
+	}
 
 }
 
