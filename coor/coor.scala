@@ -34,26 +34,81 @@ class Coordinate {
 
 	}
 
-	def *( d : Direction ) : Coordinate = {
+	def *( d : Direction ) : Coordinate = vincenty( d )
 
-		val rx : Double = 6378137.0		// 赤道半径(m)
-		val e2 : Double = 0.00669437999	// 離心率(e^2)
+	def vincenty( d : Direction ) : Coordinate = {
 
-		var wt  = sqrt( 1.0 - e2 * pow( sin( latitude.toInt / 1000 * PI / 180.0 ), 2.0 ) )
-		var mt  = rx * ( 1.0 - e2 ) / pow( wt, 3.0 )
-		var dit = d.distance.meter * cos( d.bearing.radian ) / mt
+		val ra : Double = 6378137.0				// 赤道半径(m)
+		val rb : Double = 6356752.0				// 極半径(m)
+		val f  : Double = ( ra - rb ) / ra		// 扁平率
 
-		var i   = latitude.toInt / 1000 * PI / 180.0 + dit / 2.0
+		val lat : Double = latitude.toInt  * PI / 1000.0 / 3600.0 / 180.0
+		val lon : Double = longitude.toInt * PI / 1000.0 / 3600.0 / 180.0
 
-		var w   = sqrt( 1.0 - e2 * pow( sin( i ), 2.0 ) )
-		var m   = rx * ( 1.0 - e2 ) / pow( w, 3.0 )
-		var n   = rx / w
+		val alpha12 : Double = d.bearing.radian
+		val s       : Double = d.distance.meter
 
-		var di  = d.distance.meter * cos( d.bearing.radian ) / m
-		var dk  = d.distance.meter * sin( d.bearing.radian ) / ( n * cos( i ) )
+		val U1     : Double = atan( ( 1 - f ) * tan( lat ) )
+		val sigma1 : Double = atan( tan( U1 ) / cos( alpha12 ) )
+		val alpha  : Double = asin( cos( U1 ) * sin( alpha12 ) )
+		val u2     : Double = pow( cos( alpha ), 2.0 ) * ( pow( ra, 2 ) - pow( rb, 2 ) ) / pow( rb, 2 )
+		// println( "U1 = " + U1 )
+		// println( "σ1 = " + sigma1 )
+		// println( "α  = " + alpha )
+		// println( "u2 = " + u2 )
 
-		var new_latitude_int  = ( latitude.toInt  + di * 180.0 / PI * 1000.0 ).toInt
-		var new_longitude_int = ( longitude.toInt + dk * 180.0 / PI * 1000.0 ).toInt
+		val VA : Double = 1.0 + u2 / 16384.0 * ( 4096.0 + u2 * ( -768.0 + u2 * ( 320.0 - 175.0 * u2 ) ) )
+		val VB : Double = u2 / 1024.0 * ( 256.0 + u2 * ( -128.0 + u2 * ( 74.0 - 47.0 * u2 ) ) )
+		// println( "VA = " + VA )
+		// println( "VB = " + VB )
+
+		var sigma   : Double = s / ( rb * VA )
+		println( "σ  = " + sigma )
+		var sigma0  : Double = 0.0
+		var sigma2m : Double = 0.0
+		do {
+			sigma0  = sigma
+			sigma2m = 2.0 * sigma1 + sigma
+			var tmp1 : Double = cos( sigma ) *
+								( -1.0 + 2.0 * pow( cos( sigma2m ), 2.0 ) ) -
+								VB / 6.0 * cos( sigma2m ) *
+								( -3.0 + 4.0 * pow( sin( sigma2m ), 2.0 ) ) *
+								( -3.0 + 4.0 * pow( cos( sigma2m ), 2.0 ) )
+			var delta_sigma : Double = VB * sin( sigma ) * cos( sigma2m + VB / 4.0 * tmp1 )
+
+			sigma = s / ( rb * VA ) + delta_sigma
+
+		} while ( abs( sigma0 - sigma ) < 0.000000001 )
+
+		// println( "result" )
+		// println( "σ  = " + sigma )
+		// println( "2σ = " + sigma2m )
+
+		val tan_psi2 : Double = ( sin( U1 ) * cos( sigma ) +
+									cos( U1 ) * sin( sigma ) * cos( alpha12 ) ) /
+							 	( ( 1 - f ) * sqrt( pow( sin( alpha ), 2.0 ) +
+									pow( sin( U1 ) * sin( sigma ) - cos( U1 ) * cos( sigma ) * cos( alpha12 ), 2.0 ) ) )
+		val psi2     : Double = atan( tan_psi2 )
+		// println( "tan ψ2 = " + tan_psi2 )
+		// println( "ψ2     = " + psi2 )
+
+		val omega        : Double = sin( sigma ) * sin( alpha12 ) /
+									( cos( U1 ) * cos( sigma ) -
+									sin( U1 ) * sin( sigma ) * sin( alpha12 ) )
+		val C            : Double = f / 16.0 * pow( cos( alpha ), 2.0 ) *
+									( 4.0 + f * ( 4.0 - 3.0 * pow( cos( alpha ), 2.0 ) ) )
+		val tmp2         : Double = cos( sigma2m ) + C * cos( sigma ) *
+									( -1.0 + 2.0 * pow( cos( sigma2m ), 2.0 ) )
+		val delta_lambda : Double = omega - ( 1.0 - C ) * f * sin( alpha ) *
+									( sigma + C * sin( alpha ) * tmp2 )
+		val lambda2      : Double = lon + delta_lambda
+		// println( "ω      = " + omega )
+		// println( "C      = " + C )
+		// println( "Δλ     = " + delta_lambda )
+		// println( "λ2     = " + lambda2 )
+
+		var new_latitude_int  = ( psi2    * 180.0 / PI * ( 3600000.0 ) ).toInt
+		var new_longitude_int = ( lambda2 * 180.0 / PI * ( 3600000.0 ) ).toInt
 
 		var new_latitude  = new DMST( new_latitude_int )
 		var new_longitude = new DMST( new_longitude_int )
@@ -196,11 +251,11 @@ class Direction {
 		distance = d
 	}
 
-	def this( angl : Double, dist : Double ) = {
+	def this( degree : Double, meter : Double ) = {
 		this()
 
-		bearing  = new Bearing( angl )
-		distance = new Distance( dist )
+		bearing  = new Bearing( degree )
+		distance = new Distance( meter )
 	}
 
 }
