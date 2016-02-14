@@ -78,7 +78,7 @@ class Coordinate {
 
 			sigma = s / ( rb * VA ) + delta_sigma
 
-		} while ( abs( sigma0 - sigma ) < 0.000000001 )
+		} while ( abs( sigma0 - sigma ) > 0.000000001 )
 
 		// println( "result" )
 		// println( "σ  = " + sigma )
