@@ -137,7 +137,7 @@ class Bearing( v : Double ) {
 	/**
 	 * ラジアン値
 	 */
-	def radian : Double = degree * 3.14159265 / 180.0
+	def radian : Double = degree * PI / 180.0
 
 	/**
 	 * 正規化
