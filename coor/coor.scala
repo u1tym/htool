@@ -144,7 +144,8 @@ class Bearing( v : Double ) {
 	/**
 	 * ラジアン値
 	 */
-	def radian : Double = degree * PI / 180.0
+	// def radian : Double = degree * PI / 180.0
+	def radian : Double = if ( normalization > 180 ) ( normalization - 360.0 ) * PI / 18.0 else normalization * PI / 18.0
 
 	/**
 	 * 正規化
@@ -265,6 +266,21 @@ class Direction {
 		distance = new Distance( meter )
 	}
 
+	def +( v : Distance ) : Direction = {
+		new Direction( bearing, ( distance + v ) )
+	}
+
+	def -( v : Distance ) = {
+		new Direction( bearing, ( distance - v ) )
+	}
+
+	def +( v : Bearing ) = {
+		new Direction( bearing + v, distance )
+	}
+
+	def -( v : Bearing ) = {
+		new Direction( bearing - v, distance )
+	}
 }
 
 class DMST {
