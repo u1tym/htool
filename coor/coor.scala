@@ -63,7 +63,7 @@ class Coordinate {
 		// println( "VB = " + VB )
 
 		var sigma   : Double = s / ( rb * VA )
-		println( "σ  = " + sigma )
+		// println( "σ  = " + sigma )
 		var sigma0  : Double = 0.0
 		var sigma2m : Double = 0.0
 		do {
@@ -118,12 +118,19 @@ class Coordinate {
 		new_coordinate
 	}
 
-	def print = {
-		println( "緯度" )
-		latitude.print
-		println( "経度" )
-		longitude.print
-	}
+	def value : String = "%02d%02d%02d%03d%s%03d%02d%02d%03d%s".format(
+				latitude.degree,
+				latitude.minute,
+				latitude.second,
+				latitude.milliS,
+				if ( latitude.sign >= 0 ) "N" else "S",
+				longitude.degree,
+				longitude.minute,
+				longitude.second,
+				longitude.milliS,
+				if ( longitude.sign >= 0 ) "E" else "W" )
+
+	def print = println( value )
 
 }
 
@@ -284,6 +291,19 @@ class DMST {
 
 	}
 
+	/**
+	 * DMST( d, m, s, t, n )
+	 *
+	 * 地点座標の生成
+	 *
+	 * @param  d  度    （ -180～ 180）
+	 * @param  m  分    （  -59～  59）
+	 * @param  s  秒    （  -59～  59）
+	 * @param  t  ミリ秒（-1000～1000）
+	 * @param  n  方位  （ N, E, W, S ）
+	 *
+	 * @return インスタンス
+	 */
 	def this( d : Int, m : Int, s : Int, t : Int, n : String ) {
 
 		this()
@@ -299,6 +319,17 @@ class DMST {
 												    case "E" | "W" => toInt( 180, 0, 0, 0 ) } ) )
 	}
 
+	/**
+	 * DMST( str )
+	 *
+	 * 地点座標の生成
+	 *
+	 * @param  str 地点の文字列
+	 *             DD[MM[SS[ttt]]](N|S)
+	 *             DDD[MM[SS[ttt]]](E|W)
+	 *
+	 * @return インスタンス
+	 */
 	def this( str : String ) {
 
 		this()
@@ -349,10 +380,30 @@ class DMST {
 
 	}
 
+	/**
+	 * isLatitude
+	 *
+	 * 緯度値妥当性チェック
+	 *
+	 * @param   なし
+	 *
+	 * @return  true  妥当
+	 * @return  false 妥当ではない
+	 */
 	def isLatitude : Boolean = {
 		if ( toInt( degree, minute, second, milliS ) <= toInt( 90, 0, 0, 0 ) ) true else false
 	}
 
+	/**
+	 * isLongitude
+	 *
+	 * 経度値妥当性チェック
+	 *
+	 * @param   なし
+	 *
+	 * @return  true  妥当
+	 * @return  false 妥当ではない
+	 */
 	def isLongitude : Boolean = {
 		if ( toInt( degree, minute, second, milliS ) <= toInt( 180, 0, 0, 0 ) ) true else false
 	}
@@ -380,7 +431,7 @@ class DMST {
 	 * @return  なし
 	 */
 	def print = {
-		println( "H = [" + degree + "]" )
+		println( "D = [" + degree + "]" )
 		println( "M = [" + minute + "]" )
 		println( "S = [" + second + "]" )
 		println( "T = [" + milliS + "]" )
