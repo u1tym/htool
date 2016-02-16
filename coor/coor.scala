@@ -181,6 +181,20 @@ class Bearing( v : Double ) {
 
 	def /( v : Bearing ) : Double = degree / v.degree
 
+	def toMagnetic( c : Coordinate ) : Double = degree - declination( c )
+
+	private def declination( c : Coordinate ) : Double = {
+		val i = c.latitude.toInt  / 3600000
+		val k = c.longitude.toInt / 3600000
+
+		val omega = 7.0 + 40.585 / 60.0
+                                + 19.003 / 60.0 * i
+                                -  6.265 / 60.0 * k
+                                +  0.009 / 60.0 * pow( i, 2 )
+                                +  0.024 / 60.0 * i * k
+                                -  0.591 / 60.0 * pow( k, 2 )
+		omega
+	}
 }
 
 /**
