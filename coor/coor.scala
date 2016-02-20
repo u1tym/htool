@@ -131,7 +131,6 @@ class Coordinate {
 				if ( longitude.sign >= 0 ) "E" else "W" )
 
 	def print = println( value )
-
 }
 
 /**
@@ -186,6 +185,18 @@ class Bearing( v : Double ) {
 /**
  * 距離
  */
+object DistanceUnit extends Enumeration {
+  type DistanceUnit = Value
+
+  val  nm, meter = Value
+}
+import DistanceUnit._
+
+object Distance {
+    val unit_nm    = DistanceUnit.nm
+    val unit_meter = DistanceUnit.meter
+}
+
 class Distance( v : Double ) {
 
 	var meter : Double = v
@@ -197,7 +208,19 @@ class Distance( v : Double ) {
 	def nm : Double = meter / 1852.0
 
 	def setNm( v : Double ) = {
-		meter = v * 1852.0
+		meter = v / 1852.0
+	}
+
+	def update( typ : DistanceUnit, v : Double ) = {
+
+		typ match {
+			case Distance.unit_meter => println( "meter" )
+						       meter = v
+			case Distance.unit_nm    => println( "nm" )
+							   setNm( v )
+			case _ => println( "error" )
+		}
+
 	}
 
 	def +( v : Distance ) : Distance = {

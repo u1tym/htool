@@ -11,6 +11,11 @@ object Main {
 
 		p2.print
 
+		var d1 = new Distance( 100 )
+		d1( Distance.unit_nm ) = 2000
+		d1.print
+
+
 	}
 
 }
